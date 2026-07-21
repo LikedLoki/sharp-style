@@ -1,0 +1,28 @@
+{
+  "name": "sharp-style",
+  "version": "1.0.4",
+  "description": "`#`とその他いろいろな記号で、日本語の仮名文字を表記する書式です。",
+  "main": "./dist/sharp.js",
+  "types": "./dist/sharp.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/sharp.d.ts",
+      "import": "./dist/sharp.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "japanese",
+    "parser",
+    "converter",
+    "sharp-style"
+  ],
+  "author": "@likedloki",
+  "license": "MIT"
+}
