@@ -1,5 +1,5 @@
-import parseMap from "./parse-map.json" with { type: 'json' };
-import stringifyMap from "./stringify-map.json" with { type: 'json' };
+import parseMap from "./parse-map.json" with { type: "json" };
+import stringifyMap from "./stringify-map.json" with { type: "json" };
 
 type SymbolDecorate = ":" | ";" | "_" | "^";
 type SymbolConsonant = "\"" | "!" | "$" | "%" | "&" | "'" | "(" | ")" | "=";
@@ -33,7 +33,6 @@ const longVowelReg: RegExp = /^#[\-~]{2}$/;
 const punctuationReg: RegExp = /^#\/[\-|]$/;
 
 const regTester = <T extends string[]>(text: string[], regex: RegExp): text is T => regex.test(text.join(""));
-const condition = <T,>(target: any, condition: boolean): target is T => condition;
 
 class Token {
     type: TokenType;
@@ -52,12 +51,20 @@ class Token {
         else return new Token("unknownT", ["#", "?", "?"]);
     }
     parse(): string {
-        if (condition<VowelToken>(this.value, this.type === "vowelT")) return Token.#parseVowelT(this.value);
-        else if (condition<ConsonantToken>(this.value, this.type === "consonantT")) return Token.#parseCnsnntT(this.value);
-        else if (condition<DecorateCnsnntToken>(this.value, this.type === "decorateCnsnntT")) return Token.#parseDcrtCnsnntT(this.value);
-        else if (condition<LongVowelToken>(this.value, this.type === "longVowelT")) return Token.#parseLongVowelT(this.value);
-        else if (condition<PunctuationToken>(this.value, this.type === "punctuationT")) return Token.#parsePunctuationT(this.value);
-        else return "??";
+        switch(this.type) {
+            case "vowelT":
+                return Token.#parseVowelT(this.value as VowelToken);
+            case "consonantT":
+                return Token.#parseCnsnntT(this.value as ConsonantToken);
+            case "decorateCnsnntT":
+                return Token.#parseDcrtdCnsnntT(this.value as DecorateCnsnntToken);
+            case "longVowelT":
+                return Token.#parseLongVowelT(this.value as LongVowelToken);
+            case "punctuationT":
+                return Token.#parsePunctuationT(this.value as PunctuationToken);
+            case "unknownT":
+                return "??";
+        }
     }
     static #parseVowelT(value: VowelToken): string {
         return parseMap[value[0]][value[1]];
@@ -66,7 +73,7 @@ class Token {
         if (value[1] === "%") return parseMap[value[0]][value[1]][value[2]];
         else return parseMap[value[0]][value[1]][value[2] === "6" ? "5" : value[2]];
     }
-    static #parseDcrtCnsnntT(value: DecorateCnsnntToken): string {
+    static #parseDcrtdCnsnntT(value: DecorateCnsnntToken): string {
         if (value[2] === "%") return parseMap[value[0]][value[1]][value[2]][value[3]];
         else return parseMap[value[0]][value[1]][value[2]][value[3] === "6" ? "5" : value[3]];
     }
@@ -107,6 +114,9 @@ const stringify = (input: string) => {
             const cmbndChar = newChar + next;
             const newCmbndChar = isRegular<true>(cmbndChar, true) ? cmbndChar : "$other";
             result.push(stringifyMap["ten"][newCmbndChar]);
+            i++
+        } else if (char === "\\" && next === "n") {
+            result.push("\n");
             i++
         } else {
             result.push(stringifyMap[newChar]);
