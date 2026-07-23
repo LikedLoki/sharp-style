@@ -3,6 +3,8 @@
 
 ローマ字からまぁまぁ影響を受けています。
 
+簡易的なplayground -> https://likedloki.github.io/sharp-style/
+
 ## <概要>
 まずは実物から。
 

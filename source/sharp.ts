@@ -7,23 +7,41 @@ type NormalNum = "1" | "2" | "3" | "4" | "5";
 type ExtendNum = NormalNum | "6";
 type SymbolLongVowel = "-" | "~";
 type SymbolPunctuationI = "/";
-type SymbolPunctuationII = "-" | "|"
+type SymbolPunctuationII = "-" | "|";
 
 type CnsnntA<T extends string> = T extends "%" ? `${ExtendNum}` : `${NormalNum}`;
 
-type VowelToken = ["#", NormalNum];
-type ConsonantToken = ["#", SymbolConsonant, CnsnntA<SymbolConsonant>];
-type DecorateCnsnntToken = ["#", SymbolDecorate, SymbolConsonant | "#", CnsnntA<SymbolConsonant>];
-type LongVowelToken = ["#", SymbolLongVowel, SymbolLongVowel];
-type PunctuationToken = ["#", SymbolPunctuationI, SymbolPunctuationII];
-type SharpToken = VowelToken | ConsonantToken | DecorateCnsnntToken | LongVowelToken | PunctuationToken | ["#", "?", "?"];
-type TokenType =
-    | "vowelT"
-    | "consonantT"
-    | "decorateCnsnntT"
-    | "longVowelT"
-    | "punctuationT"
-    | "unknownT";
+type TypeVowel = ["#", NormalNum];
+type TypeConsonant = ["#", SymbolConsonant, CnsnntA<SymbolConsonant>];
+type TypeDecorateCnsnnt = ["#", SymbolDecorate, SymbolConsonant | "#", CnsnntA<SymbolConsonant>];
+type TypeLongVowel = ["#", SymbolLongVowel, SymbolLongVowel];
+type TypePunctuation = ["#", SymbolPunctuationI, SymbolPunctuationII];
+type TypeUnknown = ["#", "?", "?"];
+type VowelToken = {
+    type: "vowelT",
+    value: TypeVowel
+}
+type ConsonantToken = {
+    type: "consonantT",
+    value: TypeConsonant
+}
+type DecorateCnsnntToken = {
+    type: "decorateCnsnntT",
+    value: TypeDecorateCnsnnt
+}
+type LongVowelToken = {
+    type: "longVowelT",
+    value: TypeLongVowel
+}
+type PunctuationToken = {
+    type: "punctuationT",
+    value: TypePunctuation
+}
+type UnknownToken = {
+    type: "unknownT",
+    value: TypeUnknown
+}
+type SharpToken = VowelToken | ConsonantToken | DecorateCnsnntToken | LongVowelToken | PunctuationToken | UnknownToken;
 
 
 const vowelReg: RegExp = /^#[1-5]$/;
@@ -32,65 +50,61 @@ const decorateCnsnntReg: RegExp = /^#[:;_^](["!$&'()=#][1-5]|%[1-6])$/;
 const longVowelReg: RegExp = /^#[\-~]{2}$/;
 const punctuationReg: RegExp = /^#\/[\-|]$/;
 
-const regTester = <T extends string[]>(text: string[], regex: RegExp): text is T => regex.test(text.join(""));
+const is = {
+    vowel: (target: string[]): target is TypeVowel => vowelReg.test(target.join("")),
+    consonant: (target: string[]): target is TypeConsonant => consonantReg.test(target.join("")),
+    decorateCnsnnt: (target: string[]): target is TypeDecorateCnsnnt => decorateCnsnntReg.test(target.join("")),
+    longVowel: (target: string[]): target is TypeLongVowel => longVowelReg.test(target.join("")),
+    punctuation: (target: string[]): target is TypePunctuation => punctuationReg.test(target.join(""))
+} as const;
 
-class Token {
-    type: TokenType;
-    value: SharpToken;
-    private constructor(type: TokenType, value: SharpToken) {
-        this.type = type;
-        this.value = value;
-    }
-    static new(text: string): Token {
-        const tuple = text.split("");
-        if (regTester<VowelToken>(tuple, vowelReg)) return new Token("vowelT", tuple);
-        else if (regTester<ConsonantToken>(tuple, consonantReg)) return new Token("consonantT", tuple);
-        else if (regTester<DecorateCnsnntToken>(tuple, decorateCnsnntReg)) return new Token("decorateCnsnntT", tuple);
-        else if (regTester<LongVowelToken>(tuple, longVowelReg)) return new Token("longVowelT", tuple);
-        else if (regTester<PunctuationToken>(tuple, punctuationReg)) return new Token("punctuationT", tuple);
-        else return new Token("unknownT", ["#", "?", "?"]);
-    }
-    parse(): string {
-        switch(this.type) {
-            case "vowelT":
-                return Token.#parseVowelT(this.value as VowelToken);
-            case "consonantT":
-                return Token.#parseCnsnntT(this.value as ConsonantToken);
-            case "decorateCnsnntT":
-                return Token.#parseDcrtdCnsnntT(this.value as DecorateCnsnntToken);
-            case "longVowelT":
-                return Token.#parseLongVowelT(this.value as LongVowelToken);
-            case "punctuationT":
-                return Token.#parsePunctuationT(this.value as PunctuationToken);
-            case "unknownT":
-                return "??";
-        }
-    }
-    static #parseVowelT(value: VowelToken): string {
-        return parseMap[value[0]][value[1]];
-    }
-    static #parseCnsnntT(value: ConsonantToken): string {
-        if (value[1] === "%") return parseMap[value[0]][value[1]][value[2]];
-        else return parseMap[value[0]][value[1]][value[2] === "6" ? "5" : value[2]];
-    }
-    static #parseDcrtdCnsnntT(value: DecorateCnsnntToken): string {
-        if (value[2] === "%") return parseMap[value[0]][value[1]][value[2]][value[3]];
-        else return parseMap[value[0]][value[1]][value[2]][value[3] === "6" ? "5" : value[3]];
-    }
-    static #parseLongVowelT(value: LongVowelToken): string {
-        return parseMap[value[0]][value[1]][value[2]];
-    }
-    static #parsePunctuationT(value: PunctuationToken): string {
-        return parseMap[value[0]][value[1]][value[2]];
+const parse = {
+    vowel: (value: TypeVowel) => parseMap[value[0]][value[1]],
+    consonant: (value: TypeConsonant): string => value[1] === "%" 
+        ? parseMap[value[0]][value[1]][value[2]]
+        : parseMap[value[0]][value[1]][value[2] === "6" ? "5" : value[2]],
+    decorateCnsnnt: (value: TypeDecorateCnsnnt): string => value[2] === "%"
+        ? parseMap[value[0]][value[1]][value[2]][value[3]]
+        : parseMap[value[0]][value[1]][value[2]][value[3] === "6" ? "5" : value[3]],
+    longVowel: (value: TypeLongVowel): string => parseMap[value[0]][value[1]][value[2]],
+    punctuation: (value: TypePunctuation): string => parseMap[value[0]][value[1]][value[2]]
+} as const
+
+const newToken = (enter: string): SharpToken => {
+    const tuple = enter.split("");
+    if (is.vowel(tuple)) return { type: "vowelT", value: tuple };
+    else if (is.consonant(tuple)) return { type: "consonantT", value: tuple };
+    else if (is.decorateCnsnnt(tuple)) return { type: "decorateCnsnntT", value: tuple };
+    else if (is.longVowel(tuple)) return { type: "longVowelT", value: tuple };
+    else if (is.punctuation(tuple)) return { type: "punctuationT", value: tuple };
+    else return { type: "unknownT", value: tuple as TypeUnknown };
+};
+
+const tokenParse = (enter: SharpToken) => {
+    const { type, value } = enter;
+    switch(type) {
+        case "vowelT":
+            return parse.vowel(value);
+        case "consonantT":
+            return parse.consonant(value);
+        case "decorateCnsnntT":
+            return parse.decorateCnsnnt(value);
+        case "longVowelT":
+            return parse.longVowel(value);
+        case "punctuationT":
+            return parse.punctuation(value);
+        case "unknownT":
+            return "??";
     }
 }
 
-const parse = (input: string) => {
+
+const parseA = (input: string) => {
     const tokens = input.split(/[, ]+/).filter(data => data !== "");
     const result: string[] = [];
     for (let i = 0; i < tokens.length; i++) {
-        const token: Token = Token.new(tokens[i]);
-        result.push(token.parse());
+        const token: SharpToken = newToken(tokens[i]);
+        result.push(tokenParse(token));
     }
     return {
         string: result.join(""),
@@ -104,7 +118,7 @@ const isRegular = <T extends boolean>(char: string, ten: boolean):
         ? Filter<keyof typeof stringifyMap>
         : (Filter<keyof typeof stringifyMap["ten"]>)) => char in (ten ? stringifyMap["ten"] : stringifyMap);
 
-const stringify = (input: string) => {
+const stringifyA = (input: string) => {
     const result: string[] = [];
     for (let i = 0; i < input.length; i++) {
         const char: string = input[i];
@@ -129,6 +143,6 @@ const stringify = (input: string) => {
 }
 
 export default {
-    parse,
-    stringify
+    parse: parseA,
+    stringify: stringifyA
 }

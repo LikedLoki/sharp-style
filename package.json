@@ -1,6 +1,6 @@
 {
   "name": "sharp-style",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "`#`とその他いろいろな記号で、日本語の仮名文字を表記する書式です。",
   "main": "./dist/sharp.js",
   "types": "./dist/sharp.d.ts",
