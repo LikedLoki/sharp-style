@@ -12,6 +12,13 @@
             overflow: hidden;
         }
 
+        #switch {
+            border: 2px solid black;
+            background-color: whitesmoke;
+            height: 64px;
+            width: 128px;
+            font-size: larger;
+        }
         main {
             gap: 0;
             margin: 0;
@@ -63,6 +70,7 @@
 
 <body>
     <h1 id="title">シャープ書式 | Sharp Style</h1>
+    <button id="switch">#1 → あ</button>
     <main>
         <div id="in">
             <h2>入力 | Input</h2>
@@ -79,10 +87,17 @@
         const $ = (name) => document.getElementById(name);
         const inputText = $("input-text");
         const outputText = $("output-text");
-        console.log(shrp)
+        let A = true;
 
         inputText.addEventListener("input", () => {
-            outputText.textContent = shrp.stringify(inputText.value).string
+            outputText.textContent = A ? shrp.stringify(inputText.value).string : shrp.parse(inputText.value).string;
+        })
+        const button = $("switch");
+        button.addEventListener("click", () => {
+            if (A) button.textContent = "あ → #1"
+            else button.textContent = "#1 → あ"
+            A = !A
+            outputText.textContent = A ? shrp.stringify(inputText.value).string : shrp.parse(inputText.value).string;
         })
     </script>
 </body>

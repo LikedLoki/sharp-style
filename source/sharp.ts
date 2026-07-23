@@ -77,6 +77,7 @@ const newToken = (enter: string): SharpToken => {
     else if (is.decorateCnsnnt(tuple)) return { type: "decorateCnsnntT", value: tuple };
     else if (is.longVowel(tuple)) return { type: "longVowelT", value: tuple };
     else if (is.punctuation(tuple)) return { type: "punctuationT", value: tuple };
+
     else return { type: "unknownT", value: tuple as TypeUnknown };
 };
 
@@ -128,9 +129,6 @@ const stringifyA = (input: string) => {
             const cmbndChar = newChar + next;
             const newCmbndChar = isRegular<true>(cmbndChar, true) ? cmbndChar : "$other";
             result.push(stringifyMap["ten"][newCmbndChar]);
-            i++
-        } else if (char === "\\" && next === "n") {
-            result.push("\n");
             i++
         } else {
             result.push(stringifyMap[newChar]);
