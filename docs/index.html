@@ -87,15 +87,15 @@
         const $ = (name) => document.getElementById(name);
         const inputText = $("input-text");
         const outputText = $("output-text");
-        let A = true;
+        let A = false;
 
         inputText.addEventListener("input", () => {
             outputText.textContent = A ? shrp.stringify(inputText.value).string : shrp.parse(inputText.value).string;
         })
         const button = $("switch");
         button.addEventListener("click", () => {
-            if (A) button.textContent = "あ → #1"
-            else button.textContent = "#1 → あ"
+            if (A) button.textContent = "#1 → あ"
+            else button.textContent = "あ → #1"
             A = !A
             outputText.textContent = A ? shrp.stringify(inputText.value).string : shrp.parse(inputText.value).string;
         })
