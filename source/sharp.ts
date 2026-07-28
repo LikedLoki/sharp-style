@@ -18,21 +18,12 @@ type TypeDecorateCnsnnt = ["#", SymbolDecorate, SymbolConsonant | "#", CnsnntA<S
 type TypeBase = TypeVowel | TypeConsonant | TypeDecorateCnsnnt;
 type TypeLongVowel = ["#", SymbolLongVowel, SymbolLongVowel];
 type TypePunctuation = ["#", SymbolPunctuationI, SymbolPunctuationII];
-type UnitVowelOmission = [SymbolDecorate, SymbolConsonant | "#"] | [SymbolConsonant | "#"];
-type TypeVowelOmission = [...TypeBase, ...UnitVowelOmission[]];
-type UnitCnsnntOmission = [SymbolDecorate, NormalNum] | [NormalNum]
-type TypeCnsnntOmission = [...TypeBase, ...UnitCnsnntOmission[]];
-type UnitShift = [SymbolShift, ...([SymbolDecorate, SymbolConsonant] | [SymbolConsonant])] | [SymbolShift];
-type TypeShift = [...TypeBase, UnitShift, ...UnitShift[]];
 type TypeUnknown = ["#", "?", "?"];
 type VowelToken = { type: "vowelT", value: TypeVowel };
 type ConsonantToken = { type: "consonantT", value: TypeConsonant };
 type DecorateCnsnntToken = { type: "decorateCnsnntT", value: TypeDecorateCnsnnt };
 type LongVowelToken = { type: "longVowelT", value: TypeLongVowel };
 type PunctuationToken = { type: "punctuationT", value: TypePunctuation }
-type VowelOmissionToken = { type: "vowelOmissionT", value: TypeVowelOmission };
-type CnsnntOmissionToken = { type: "cnsnntOmissionT", value: TypeCnsnntOmission };
-type ShiftToken = { type: "shiftT", value: TypeShift };
 type UnknownToken = { type: "unknownT", value: TypeUnknown };
 type SharpToken =
     | VowelToken
@@ -40,9 +31,6 @@ type SharpToken =
     | DecorateCnsnntToken
     | LongVowelToken
     | PunctuationToken
-    | VowelOmissionToken
-    | CnsnntOmissionToken
-    | ShiftToken
     | UnknownToken;
 
 const vowelReg: RegExp = /^#[1-5]$/;
@@ -50,7 +38,6 @@ const consonantReg: RegExp = /^#(?:["!$&'()=][1-5]|%[1-6])$/;
 const decorateCnsnntReg: RegExp = /^#[:;_^](?:["!$&'()=#][1-5]|%[1-6])$/;
 const longVowelReg: RegExp = /^#[\-~]{2}$/;
 const punctuationReg: RegExp = /^#\/[\-|]$/;
-const omissionReg: RegExp = /^#(?:[:;_^][!"$&'()=][1-5]|[!"$&'()=][1-5]|[1-5])((?:(?:[:;_^][1-5]|[1-5])|(?:[:;_^][!"#$%&'()=]|[!"#$%&'()=])|(?:(?:[<>])|(?:[<>](?:[:;_^][!"#$%&'()=]|[!"#$%&'()=]))))+)|#(?:[:;_^][%][1-5]|[%][1-5])((?:(?:[:;_^][1-6]|[1-6])|(?:[:;_^][!"#$%&'()=]|[!"#$%&'()=])|(?:(?:[<>])|(?:[<>](?:[:;_^][!"#$%&'()=]|[!"#$%&'()=]))))+)$/;
 
 const is = {
     vowel: (target: string[]): target is TypeVowel => vowelReg.test(target.join("")),
@@ -97,12 +84,6 @@ const tokenParse = (enter: SharpToken) => {
             return parse.longVowel(value);
         case "punctuationT":
             return parse.punctuation(value);
-        case "vowelOmissionT":
-            return "";
-        case "cnsnntOmissionT":
-            return "";
-        case "shiftT":
-            return "";
         case "unknownT":
             return "??";
     }
